@@ -1,0 +1,136 @@
+/* HouseList Styles */
+.house-list {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.house-list-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #1f2937;
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+}
+
+.house-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Loading Skeleton Styles */
+.house-list-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.skeleton-card {
+  background: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-image {
+  height: 200px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-title {
+  height: 24px;
+  margin: 1rem;
+  background: #f0f0f0;
+  border-radius: 4px;
+  width: 80%;
+}
+
+.skeleton-price {
+  height: 20px;
+  margin: 0 1rem 0.5rem;
+  background: #f0f0f0;
+  border-radius: 4px;
+  width: 40%;
+}
+
+.skeleton-location {
+  height: 16px;
+  margin: 0 1rem 1rem;
+  background: #f0f0f0;
+  border-radius: 4px;
+  width: 60%;
+}
+
+/* Empty State Styles */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  color: #6b7280;
+}
+
+.empty-state svg {
+  margin-bottom: 1rem;
+  color: #9ca3af;
+}
+
+.empty-state h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.empty-state p {
+  font-size: 0.875rem;
+}
+
+/* Footer */
+.house-list-footer {
+  text-align: center;
+  padding-top: 1rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .house-list {
+    padding: 1rem;
+  }
+  
+  .house-list-title {
+    font-size: 1.5rem;
+  }
+  
+  .house-grid {
+    gap: 1rem;
+  }
+}
