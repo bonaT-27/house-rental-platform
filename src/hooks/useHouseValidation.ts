@@ -32,9 +32,9 @@ export function useHouseValidation() {
       return true;
     }
     
-    if (result.error) {
+    if (result.errors) {
       const newErrors: ValidationErrors = {};
-      result.error.issues.forEach((issue: ZodIssue) => {
+      result.errors.issues.forEach((issue: ZodIssue) => {
         const field = issue.path[0] as keyof HouseFormData;
         newErrors[field] = issue.message;
       });
