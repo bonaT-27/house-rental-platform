@@ -1,65 +1,34 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import HouseList from './components/HouseList';
+import { AddHouseForm } from './components/AddHouseForm';
 import { mockHouses } from './data/mockHousesData';
 import { House } from './types/house';
+import { HouseFormData as HouseFormDataType } from './schemas/houseSchema';
 
-// Type for filter options
-type FilterType = 'all' | 'available';
+type ViewMode = 'list' | 'add';
 
 function App() {
-  // State for houses - typed as House[]
-  const [houses, setHouses] = useState<House[]>(() => {
-    // Initialize with mock data (convert from readonly to mutable for state)
-    // Using spread operator to create a mutable copy
-    return [...mockHouses] as House[];
-  });
+  const [houses, setHouses] = useState<House[]>([...mockHouses] as House[]);
+  const [filter, setFilter] = useState<'all' | 'available'>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
 
-  // State for filter type
-  const [filter, setFilter] = useState<FilterType>('all');
-
-  // State to track if we've modified any data
-  const [isModified, setIsModified] = useState(false);
-
-  // Computed filtered houses using useMemo for performance
-  const filteredHouses = useMemo((): House[] => {
-    if (filter === 'available') {
-      return houses.filter((house: House): boolean => house.isAvailable === true);
-    }
-    return houses;
-  }, [houses, filter]);
-
-  // Handler to toggle availability of a random house (demonstrates state update)
-  const toggleRandomAvailability = (): void => {
-    if (houses.length === 0) return;
-    
-    const randomIndex = Math.floor(Math.random() * houses.length);
-    const updatedHouses = [...houses];
-    updatedHouses[randomIndex] = {
-      ...updatedHouses[randomIndex],
-      isAvailable: !updatedHouses[randomIndex].isAvailable,
+  const handleAddHouse = (formData: HouseFormDataType) => {
+    const newHouse: House = {
+      ...formData,
+      id: (houses.length + 1).toString(),
     };
-    setHouses(updatedHouses);
-    setIsModified(true);
+    
+    setHouses(prev => [...prev, newHouse]);
+    setViewMode('list'); // Switch back to list view
+    console.log('New house added:', newHouse);
   };
 
-  // Handler to reset to original data
-  const resetToOriginal = (): void => {
-    setHouses([...mockHouses] as House[]);
-    setFilter('all');
-    setIsModified(false);
-  };
+  const filteredHouses = filter === 'available' 
+    ? houses.filter(house => house.isAvailable)
+    : houses;
 
-  // Handler for house click
-  const handleHouseClick = (id: string): void => {
-    console.log(`House ${id} clicked`);
-    // In a real app, you'd navigate to detail page
-    alert(`You clicked on house ${id}`);
-  };
-
-  // Get counts for display
   const totalHouses = houses.length;
-  const availableHouses = houses.filter((h: House): boolean => h.isAvailable).length;
-  const filteredCount = filteredHouses.length;
+  const availableHouses = houses.filter(h => h.isAvailable).length;
 
   return (
     <div style={{ 
@@ -67,7 +36,6 @@ function App() {
       backgroundColor: '#f7f7f7',
       fontFamily: 'system-ui, -apple-system, sans-serif'
     }}>
-      {/* Header Section */}
       <header style={{
         backgroundColor: 'white',
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -79,108 +47,103 @@ function App() {
             🏠 House Rental Platform
           </h1>
           
-          {/* Stats Bar */}
-<div style={{ 
-  display: 'flex', 
-  gap: '20px', 
-  marginBottom: '20px',
-  padding: '10px 0',
-  borderBottom: '1px solid #eee'
-}}>
-  <div data-testid="total-count">
-    <strong>Total:</strong> {totalHouses} properties
-  </div>
-  <div data-testid="available-count">
-    <strong>Available:</strong> {availableHouses} properties
-  </div>
-  {filter === 'available' && (
-    <div style={{ color: '#2e7d32' }} data-testid="filtered-count">
-      <strong>Showing:</strong> {filteredCount} available
-    </div>
-  )}
-  {isModified && (
-    <div style={{ color: '#ff9800' }} data-testid="modified-indicator">
-      ⚡ Data modified
-    </div>
-  )}
-</div>
-          {/* Filter and Action Buttons */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '20px', 
+            marginBottom: '20px',
+            padding: '10px 0',
+            borderBottom: '1px solid #eee'
+          }}>
+            <div>
+              <strong>Total:</strong> {totalHouses} properties
+            </div>
+            <div>
+              <strong>Available:</strong> {availableHouses} properties
+            </div>
+          </div>
+
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             <button
-              onClick={() => setFilter('all')}
+              onClick={() => setViewMode('list')}
               style={{
                 padding: '10px 20px',
-                backgroundColor: filter === 'all' ? '#007bff' : '#e0e0e0',
-                color: filter === 'all' ? 'white' : '#333',
+                backgroundColor: viewMode === 'list' ? '#007bff' : '#e0e0e0',
+                color: viewMode === 'list' ? 'white' : '#333',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                fontWeight: 'bold',
-                transition: 'all 0.2s'
+                fontWeight: 'bold'
               }}
             >
-              🏠 Show All ({totalHouses})
+              🏠 View Properties
             </button>
             
             <button
-              onClick={() => setFilter('available')}
+              onClick={() => setViewMode('add')}
               style={{
                 padding: '10px 20px',
-                backgroundColor: filter === 'available' ? '#28a745' : '#e0e0e0',
-                color: filter === 'available' ? 'white' : '#333',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                transition: 'all 0.2s'
-              }}
-            >
-              ✓ Available Only ({availableHouses})
-            </button>
-
-            <button
-              onClick={toggleRandomAvailability}
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#ff9800',
-                color: 'white',
+                backgroundColor: viewMode === 'add' ? '#28a745' : '#e0e0e0',
+                color: viewMode === 'add' ? 'white' : '#333',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 fontWeight: 'bold'
               }}
             >
-              🎲 Toggle Random House
+              ➕ Add New Property
             </button>
 
-            <button
-              onClick={resetToOriginal}
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#6c757d',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: 'bold'
-              }}
-            >
-              🔄 Reset to Original
-            </button>
+            {viewMode === 'list' && (
+              <>
+                <button
+                  onClick={() => setFilter('all')}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: filter === 'all' ? '#007bff' : '#e0e0e0',
+                    color: filter === 'all' ? 'white' : '#333',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  Show All ({totalHouses})
+                </button>
+                
+                <button
+                  onClick={() => setFilter('available')}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: filter === 'available' ? '#28a745' : '#e0e0e0',
+                    color: filter === 'available' ? 'white' : '#333',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  Available Only ({availableHouses})
+                </button>
+              </>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <HouseList 
-          houses={filteredHouses}
-          title={filter === 'available' ? 'Available Properties' : 'All Properties'}
-          onHouseClick={handleHouseClick}
-        />
+        {viewMode === 'list' ? (
+          <HouseList 
+            houses={filteredHouses}
+            title={filter === 'available' ? 'Available Properties' : 'All Properties'}
+          />
+        ) : (
+          <AddHouseForm 
+            onSuccess={handleAddHouse}
+            onCancel={() => setViewMode('list')}
+          />
+        )}
       </main>
 
-      {/* Footer */}
       <footer style={{
         textAlign: 'center',
         padding: '30px',
@@ -191,7 +154,7 @@ function App() {
       }}>
         <p>🏡 House Rental Platform - Built with React + TypeScript</p>
         <p style={{ fontSize: '0.875rem', marginTop: '8px' }}>
-          Click on any property to see details (coming soon!)
+          Add new properties with our validated form!
         </p>
       </footer>
     </div>
