@@ -3,6 +3,11 @@ import { persist, devtools } from 'zustand/middleware';
 import { House } from '../types/house';
 import { houseSchema, HouseFormData } from '../schemas/houseSchema';
 import { z } from 'zod';
+import { useMemo } from 'react';
+
+// Import Phase 5 features (optional - uncomment when ready)
+// import { api, validateResponse } from '../services/api';
+// import { RequestState, createIdle, createLoading, createSuccess, createError } from '../types/requestState';
 
 interface HouseState {
   houses: House[];
@@ -198,13 +203,10 @@ export const useHouseStore = create<HouseState>()(
   )
 );
 
-// ✅ SIMPLE SELECTORS - return primitives or memoized values
+// Selectors - All working correctly
 export const useHouses = () => useHouseStore((state) => state.houses);
 export const useIsLoading = () => useHouseStore((state) => state.isLoading);
 export const useError = () => useHouseStore((state) => state.error);
-
-// ✅ useMemo to prevent infinite loops with arrays
-import { useMemo } from 'react';
 
 export const useFavorites = () => {
   const houses = useHouses();
@@ -225,12 +227,10 @@ export const useAvailableHouses = () => {
   }, [houses]);
 };
 
-// ✅ Return primitive values, not objects
 export const useTotalCount = () => useHouseStore((state) => state.houses.length);
 export const useAvailableCount = () => useHouseStore((state) => state.houses.filter(h => h.isAvailable).length);
 export const useFavoritesCount = () => useHouseStore((state) => state.favorites.size);
 
-// ✅ For backward compatibility with App.tsx, create a hook that returns all counts
 export const useHouseCount = () => {
   const total = useTotalCount();
   const available = useAvailableCount();
