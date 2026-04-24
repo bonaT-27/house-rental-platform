@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import HouseCard from './HouseCard';
+import {HouseCard } from './HouseCard';
 import type { House } from '../types/house';
 
 // Create typed mock functions

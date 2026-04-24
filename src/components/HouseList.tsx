@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { House } from "../types/house";
-import HouseCard from "./HouseCard";
+import{ HouseCard} from "./HouseCard";
 
 interface HouseListProps {
   houses: House[] | undefined;

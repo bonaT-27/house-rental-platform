@@ -1,3 +1,4 @@
+import React, { memo } from 'react';
 import { House } from '../types/house';
 import { useIsFavorite, useHouseStore } from '../store/houseStore';
 
@@ -6,27 +7,54 @@ interface HouseCardProps {
   onClick?: (id: string) => void;
 }
 
-export default function HouseCard({ house, onClick }: HouseCardProps): React.ReactElement {
+// Custom comparison function for React.memo
+const arePropsEqual = (prevProps: HouseCardProps, nextProps: HouseCardProps): boolean => {
+  // Only re-render if house data or onClick changes
+  return (
+    prevProps.house.id === nextProps.house.id &&
+    prevProps.house.isAvailable === nextProps.house.isAvailable &&
+    prevProps.house.price === nextProps.house.price &&
+    prevProps.onClick === nextProps.onClick
+  );
+};
+
+// Add performance mark for measuring render times
+const HouseCardComponent: React.FC<HouseCardProps> = ({ house, onClick }) => {
   const isFavorite = useIsFavorite(house.id);
   const toggleFavorite = useHouseStore((state) => state.toggleFavorite);
   
-  const handleClick = () => {
+  // Performance measurement
+  React.useEffect(() => {
+    performance.mark(`house-card-render-start-${house.id}`);
+    return () => {
+      performance.mark(`house-card-render-end-${house.id}`);
+      performance.measure(
+        `house-card-render-${house.id}`,
+        `house-card-render-start-${house.id}`,
+        `house-card-render-end-${house.id}`
+      );
+    };
+  }, [house.id]);
+  
+  const handleClick = React.useCallback(() => {
     if (onClick) {
       onClick(house.id);
     }
-  };
+  }, [onClick, house.id]);
   
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering house click
+  const handleFavoriteClick = React.useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     toggleFavorite(house.id);
-  };
+  }, [toggleFavorite, house.id]);
   
-  const formattedPrice = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(house.price);
+  const formattedPrice = React.useMemo(() => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(house.price);
+  }, [house.price]);
   
   return (
     <div 
@@ -52,7 +80,6 @@ export default function HouseCard({ house, onClick }: HouseCardProps): React.Rea
         e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
       }}
     >
-      {/* Favorite Button */}
       <button
         onClick={handleFavoriteClick}
         style={{
@@ -72,12 +99,6 @@ export default function HouseCard({ house, onClick }: HouseCardProps): React.Rea
           transition: 'transform 0.2s',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
         }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.1)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-        }}
       >
         {isFavorite ? '❤️' : '🤍'}
       </button>
@@ -92,9 +113,7 @@ export default function HouseCard({ house, onClick }: HouseCardProps): React.Rea
           borderRadius: '8px',
           marginBottom: '12px'
         }}
-        onError={(e) => {
-          e.currentTarget.src = 'https://picsum.photos/id/104/400/300';
-        }}
+        loading="lazy"
       />
       
       <h3 style={{ margin: '0 0 8px 0', fontSize: '1.25rem' }}>
@@ -134,4 +153,7 @@ export default function HouseCard({ house, onClick }: HouseCardProps): React.Rea
       </div>
     </div>
   );
-}
+};
+
+// Export memoized component
+export const HouseCard = memo(HouseCardComponent, arePropsEqual);

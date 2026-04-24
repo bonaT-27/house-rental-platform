@@ -1,0 +1,11 @@
+# .env.development
+VITE_API_URL=<http://localhost:5173/api>
+VITE_APP_ENV=development
+
+# .env.production
+VITE_API_URL=<https://api.houserental.com/api>
+VITE_APP_ENV=production
+
+# .env.test
+VITE_API_URL=<http://localhost:5173/api>
+VITE_APP_ENV=test
